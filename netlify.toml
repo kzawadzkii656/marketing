@@ -1,0 +1,5 @@
+[build]
+  publish = "netlify/public"
+
+[functions]
+  directory = "netlify/functions"
