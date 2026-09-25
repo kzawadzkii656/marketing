@@ -6,3 +6,5 @@
 .preview-frame.ready canvas{display:block}
 summary .preview-frame{max-height:250px}
 summary .preview-frame canvas{max-height:250px;object-fit:cover;object-position:top}
+
+.profile-group{padding:14px 18px;margin:8px 0}.profile-group summary{font-size:17px;padding:6px 0}.profile-group .grid{margin-top:12px}.profile-group label{font-weight:500}.profile-group select{margin-top:6px}
