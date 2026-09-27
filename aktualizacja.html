@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#086647">
+  <meta name="robots" content="noindex">
+  <title>Aktualizacja — Marketing sklepu</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,sans-serif;color:#193b30;background:#f5f8f6}
+    *{box-sizing:border-box}body{margin:0;padding:24px 16px 90px}
+    main{max-width:550px;margin:5vh auto 0}.brand{display:flex;align-items:center;gap:14px;font-size:19px;font-weight:700}.logo{display:grid;place-items:center;width:48px;height:48px;color:white;background:#087455;border-radius:16px}
+    .card{background:white;border:1px solid #d7e5db;border-radius:24px;padding:26px;margin-top:26px;box-shadow:0 9px 34px #1034240a}
+    h1{font-size:27px;margin:0 0 12px}p{line-height:1.5;color:#496258}small{line-height:1.5;display:block;color:#62786e}
+    button,a.button{font:inherit;display:inline-block;border:1px solid #bed6c8;border-radius:13px;background:#e8f2ec;color:#174b38;padding:13px 17px;cursor:pointer;text-decoration:none;margin:7px 7px 0 0}
+    button.primary{background:#087455;color:white;border-color:#087455}button:disabled{opacity:.6;cursor:wait}
+    dialog{border:0;border-radius:24px;width:min(440px,calc(100% - 32px));padding:26px;box-shadow:0 20px 70px #0003}dialog::backdrop{background:#0e2e25a8}
+    [hidden]{display:none!important}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand"><span class="logo">M</span><span>Marketing sklepu</span></div>
+    <section class="card">
+      <h1>Aktualizacja aplikacji</h1>
+      <p>Ta strona pomoże pobrać nową wersję także wtedy, gdy telefon wyświetla starszą wersję aplikacji.</p>
+      <p id="status" role="status" aria-live="polite">Sprawdzanie aktualizacji…</p>
+      <button id="check" class="primary" disabled>Sprawdź ponownie</button>
+      <a class="button" href="./">Wróć do aplikacji</a>
+      <small>Aktualizacja nie usuwa zapisanych PDF-ów ani odhaczeń. Wymaga internetu.</small>
+    </section>
+  </main>
+  <dialog id="available" aria-labelledby="available-title">
+    <h1 id="available-title">Dostępna jest nowa wersja</h1>
+    <p>Nowa wersja jest pobrana. Wybierz, kiedy uruchomić aplikację ponownie.</p>
+    <p id="dialog-status" role="status"></p>
+    <button id="apply" class="primary">Aktualizuj teraz</button>
+    <button id="later">Później</button>
+  </dialog>
+  <script>
+    (()=>{
+      'use strict';
+      const status=document.querySelector('#status'),dialog=document.querySelector('#available');
+      const check=document.querySelector('#check'),apply=document.querySelector('#apply'),later=document.querySelector('#later'),message=document.querySelector('#dialog-status');
+      let registration=null,waiting=null,changed=false,applying=false,interval=null,timeout=null;
+      const say=text=>{status.textContent=text};
+      const open=()=>{if(!dialog.open)dialog.showModal()};
+      const home=()=>location.replace('./?aktualizacja='+Date.now());
+      function ready(worker){
+        if(!worker)return;
+        waiting=worker;
+        check.disabled=false;
+        say('Nowa wersja jest gotowa.');
+        open();
+      }
+      function controllerChange(){
+        changed=true;
+        clearTimeout(timeout);
+        if(applying)home();
+        else {say('Nowa wersja jest aktywna. Otwórz aplikację.');open()}
+      }
+      later.onclick=()=>{dialog.close();say('Możesz wrócić później. Aby uruchomić aktualizację, wybierz „Sprawdź ponownie”.')};
+      dialog.addEventListener('cancel',event=>{event.preventDefault();if(!applying)later.click()});
+      apply.onclick=()=>{
+        if(applying)return;
+        if(!waiting){
+          if(changed){home();return}
+          message.textContent='Aktualizacja jeszcze się pobiera. Poczekaj chwilę i spróbuj ponownie.';
+          return;
+        }
+        applying=true;apply.disabled=true;later.disabled=true;
+        message.textContent='Uruchamiam nową wersję…';
+        waiting.postMessage({type:'ACTIVATE_UPDATE'});
+        timeout=setTimeout(()=>{
+          if(changed)return;
+          applying=false;apply.disabled=false;later.disabled=false;
+          message.textContent='Nie udało się automatycznie uruchomić nowej wersji. Zamknij aplikację całkowicie i otwórz ją ponownie.';
+        },12000);
+      };
+      async function scan(){
+        if(!navigator.onLine){check.disabled=false;say('Połącz telefon z internetem i wybierz „Sprawdź ponownie”.');return}
+        check.disabled=true;say('Pobieram aktualizację…');
+        try{
+          registration ||= await navigator.serviceWorker.getRegistration('./');
+          registration ||= await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});
+          if(registration.waiting){ready(registration.waiting);return}
+          await registration.update();
+          if(registration.waiting){ready(registration.waiting);return}
+          if(changed){say('Nowa wersja jest aktywna.');open();return}
+          // A previous worker may still be downloading its offline files.
+          let worker=registration.installing;
+          if(worker){
+            worker.addEventListener('statechange',()=>{
+              if(worker.state==='installed')ready(registration.waiting||worker);
+              if(worker.state==='redundant'){check.disabled=false;say('Pobieranie nie powiodło się. Spróbuj ponownie z internetem.')}
+            });
+            say('Pobieranie plików do trybu offline…');
+            check.disabled=false;
+            return;
+          }
+          say('Nie ma nowszej wersji do pobrania. Jeśli widzisz stary ekran, zamknij wszystkie okna aplikacji i uruchom ją ponownie.');
+          check.disabled=false;
+        }catch{
+          check.disabled=false;say('Nie udało się sprawdzić aktualizacji. Spróbuj ponownie z internetem.')
+        }
+      }
+      check.onclick=()=>{if(registration?.waiting){ready(registration.waiting)}else scan()};
+      if(!('serviceWorker' in navigator)){check.hidden=true;say('Ta przeglądarka nie obsługuje aktualizacji aplikacji. Otwórz link w Safari albo Chrome.');return}
+      navigator.serviceWorker.addEventListener('controllerchange',controllerChange);
+      // Detect a waiting update installed while this page was open.
+      interval=setInterval(()=>{if(!changed&&registration?.waiting&&!waiting)ready(registration.waiting)},1000);
+      scan();
+    })();
+  </script>
+</body>
+</html>

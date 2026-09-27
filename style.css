@@ -9,6 +9,7 @@ summary .preview-frame canvas{max-height:250px;object-fit:cover;object-position:
 
 .profile-group{padding:14px 18px;margin:8px 0}.profile-group summary{font-size:17px;padding:6px 0}.profile-group .grid{margin-top:12px}.profile-group label{font-weight:500}.profile-group select{margin-top:6px}
 
-#store-onboarding{width:min(92vw,430px);max-height:85vh;border-radius:18px;padding:24px}
-#store-onboarding h2{margin-top:0}
-#store-onboarding-error{min-height:1em;color:#a12828;font-size:13px}
+
+[hidden]{display:none!important}.login-card{max-width:580px;margin:24px auto}.login-card h1{font-size:32px}
+
+#update-dialog{max-width:440px;width:calc(100% - 32px);padding:24px;box-sizing:border-box}#update-dialog h2{margin-top:0}#update-dialog::backdrop{background:rgba(15,40,31,.45)}.update-banner{display:block;margin:12px auto;max-width:calc(100% - 32px);background:#e2f1e9;color:#086647;border:1px solid #bad4c4}
