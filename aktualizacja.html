@@ -14,7 +14,8 @@
     h1{font-size:27px;margin:0 0 12px}p{line-height:1.5;color:#496258}small{line-height:1.5;display:block;color:#62786e}
     button,a.button{font:inherit;display:inline-block;border:1px solid #bed6c8;border-radius:13px;background:#e8f2ec;color:#174b38;padding:13px 17px;cursor:pointer;text-decoration:none;margin:7px 7px 0 0}
     button.primary{background:#087455;color:white;border-color:#087455}button:disabled{opacity:.6;cursor:wait}
-    dialog{border:0;border-radius:24px;width:min(440px,calc(100% - 32px));padding:26px;box-shadow:0 20px 70px #0003}dialog::backdrop{background:#0e2e25a8}
+    dialog{border:0;border-radius:22px;width:min(440px,calc(100% - 32px));max-width:440px;max-height:calc(100dvh - 48px);overflow:auto;padding:0;background:white;box-shadow:0 20px 70px #0003;color:#193b30}dialog::backdrop{background:#0e2e25a8}
+    .dialog-content{padding:28px 24px calc(24px + env(safe-area-inset-bottom,0px))}.dialog-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#e3f2e9;color:#087455;font-size:30px;line-height:1;margin-bottom:18px}.dialog-content h1{font-size:clamp(22px,5.8vw,27px);line-height:1.2;overflow-wrap:anywhere}.dialog-content p{margin:0 0 18px}.dialog-content #dialog-status:empty{display:none}.dialog-actions{display:grid;gap:10px}.dialog-actions button{display:block;width:100%;margin:0;min-height:48px;font-weight:650}
     [hidden]{display:none!important}
   </style>
 </head>
@@ -31,11 +32,13 @@
     </section>
   </main>
   <dialog id="available" aria-labelledby="available-title">
-    <h1 id="available-title">Dostępna jest nowa wersja</h1>
-    <p>Nowa wersja jest pobrana. Wybierz, kiedy uruchomić aplikację ponownie.</p>
-    <p id="dialog-status" role="status"></p>
-    <button id="apply" class="primary">Aktualizuj teraz</button>
-    <button id="later">Później</button>
+    <div class="dialog-content">
+      <span class="dialog-icon" aria-hidden="true">↻</span>
+      <h1 id="available-title">Dostępna jest nowa wersja</h1>
+      <p>Nowa wersja jest pobrana. Wybierz, kiedy uruchomić aplikację ponownie.</p>
+      <p id="dialog-status" role="status" aria-live="polite"></p>
+      <div class="dialog-actions"><button id="apply" class="primary">Aktualizuj teraz</button><button id="later">Później</button></div>
+    </div>
   </dialog>
   <script>
     (()=>{

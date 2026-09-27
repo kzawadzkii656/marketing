@@ -2,7 +2,7 @@ export async function setupUpdates({isBusy=()=>false,onReady=()=>{},onError=()=>
  if(!('serviceWorker' in navigator))return null;
  let registration,waiting=null,applying=false,changed=false,reloaded=false,deferred=false,shown=null,timer;
  const dialog=document.createElement('dialog');dialog.id='update-dialog';dialog.setAttribute('aria-labelledby','update-title');
- dialog.innerHTML='<h2 id="update-title">Dostępna jest nowa wersja</h2><p>Aktualizacja jest pobrana i gotowa do uruchomienia. PDF-y, ustawienia i zapisane odhaczenia pozostaną na telefonie.</p><p id="update-status" role="status"></p><div class="row"><button id="update-apply" class="primary">Aktualizuj teraz</button><button id="update-later">Później</button></div>';
+ dialog.innerHTML='<div class="update-dialog-content"><span class="update-dialog-icon" aria-hidden="true">↻</span><h2 id="update-title">Dostępna jest nowa wersja</h2><p>Aktualizacja jest pobrana i gotowa do uruchomienia. PDF-y, ustawienia i zapisane odhaczenia pozostaną na telefonie.</p><p id="update-status" role="status" aria-live="polite"></p><div class="update-dialog-actions"><button id="update-apply" class="primary">Aktualizuj teraz</button><button id="update-later">Później</button></div></div>';
  const banner=document.createElement('button');banner.id='update-banner';banner.className='update-banner';banner.hidden=true;banner.textContent='Nowa wersja jest gotowa — aktualizuj';
  document.body.append(dialog);document.querySelector('header').after(banner);
  const apply=dialog.querySelector('#update-apply'),later=dialog.querySelector('#update-later'),status=dialog.querySelector('#update-status');
